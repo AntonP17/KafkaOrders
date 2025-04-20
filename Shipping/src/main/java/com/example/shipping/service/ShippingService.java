@@ -23,7 +23,7 @@ public class ShippingService {
     }
 
     @Transactional
-    @KafkaListener(topics = "payed_orders")
+    @KafkaListener(topics = "payed_orders", groupId = "shipping")
     public void shipOrder(OrderEvent event) {
 
         // 1. Проверяем статус
