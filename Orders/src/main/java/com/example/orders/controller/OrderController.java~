@@ -31,10 +31,6 @@ public class OrderController {
     public ResponseEntity<OrderResponse> getOrder(@PathVariable Long orderId) {
 
         OrderResponse orderResponse = orderService.getOrder(orderId);
-
-        if (orderResponse == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(orderResponse);
     }
 }

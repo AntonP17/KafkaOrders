@@ -20,9 +20,7 @@ public class NotificationService {
     @KafkaListener(topics = "sent_orders", groupId = "notifications")
     public void sendNotification(OrderEvent event) {
 
-
-        event.setStatus(Status.SHIPPED);
-        kafkaTemplate.send("sent_orders", event);
+        event.setStatus(Status.DELIVERED);
         kafkaTemplate.send("order_status_updates", event);
 
     }

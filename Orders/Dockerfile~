@@ -1,0 +1,7 @@
+# Этап сборки слоев приложения
+FROM bellsoft/liberica-openjre-debian:24.0.1 AS layers
+WORKDIR /application
+COPY target/Orders-*.jar app.jar
+RUN java -Djarmode=layertools -jar app.jar extract
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

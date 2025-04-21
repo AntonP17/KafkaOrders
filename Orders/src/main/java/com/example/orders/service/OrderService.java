@@ -59,7 +59,8 @@ public class OrderService {
         return orderResponse;
     }
 
-    @KafkaListener(topics = "order_status_updates",  groupId = "payment-service-group")
+    @Transactional
+    @KafkaListener(topics = "order_status_updates",  groupId = "order-service-group-id")
     public void updateOrderStatus(OrderEvent orderEvent) {
 
         Order order = orderRepository.findById(orderEvent.getOrderId())
