@@ -52,12 +52,12 @@ public class OrderService {
         event.setQuantity(order.getQuantity());
         event.setStatus(order.getStatus());
 
-        try {
-            kafkaTemplate.send("new_orders", event); // Отправляем event, а не orderRequest
-        } catch (Exception e) {
-            logger.error("Failed to send order event to Kafka: {}", event, e);
-            throw new RuntimeException("Failed to send order event to Kafka", e);
-        }
+//        try {
+//            kafkaTemplate.send("new_orders", event); // Отправляем event, а не orderRequest
+//        } catch (Exception e) {
+//            logger.error("Failed to send order event to Kafka: {}", event, e);
+//            throw new RuntimeException("Failed to send order event to Kafka", e);
+//        }
 
         return order;
     }
