@@ -5,6 +5,7 @@ import com.example.orders.dto.OrderResponse;
 import com.example.orders.model.Order;
 import com.example.orders.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,11 +31,11 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponse> getOrder(@PathVariable Long orderId) {
 
-        OrderResponse orderResponse = orderService.getOrder(orderId);
+        OrderResponse response = orderService.getOrder(orderId);
 
-        if (orderResponse == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(orderResponse);
+        return response.getErrorMessage() != null
+                ? ResponseEntity.status(HttpStatus.NOT_FOUND).body(response)
+                : ResponseEntity.ok(response);
+
     }
 }

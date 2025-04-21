@@ -15,6 +15,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class OrderService {
 
@@ -39,13 +41,12 @@ public class OrderService {
         order.setStatus(Status.NEW);
 
         try {
-            order = orderRepository.save(order); // Получаем order с ID
+            order = orderRepository.save(order);
         } catch (DataAccessException e) {
             logger.error("Failed to save order: {}", orderRequest, e);
             throw new RuntimeException("Failed to save order", e);
         }
 
-        // Собираем DTO для Kafka
         OrderEvent event = new OrderEvent();
         event.setOrderId(order.getId());
         event.setProductName(order.getProductName());
@@ -53,7 +54,7 @@ public class OrderService {
         event.setStatus(order.getStatus());
 
         try {
-            kafkaTemplate.send("new_orders", event); // Отправляем event, а не orderRequest
+            kafkaTemplate.send("new_orders", event);
         } catch (Exception e) {
             logger.error("Failed to send order event to Kafka: {}", event, e);
             throw new RuntimeException("Failed to send order event to Kafka", e);
@@ -62,31 +63,47 @@ public class OrderService {
         return order;
     }
 
-    public OrderResponse getOrder(Long orderId) {
-
+    public OrderResponse  getOrder(Long orderId) {
 
         Order order = orderRepository.findById(orderId).orElse(null);
 
-        OrderResponse orderResponse = new OrderResponse();
-        orderResponse.setProductName(order.getProductName());
-        orderResponse.setQuantity(order.getQuantity());
-        orderResponse.setStatus(order.getStatus());
-        orderResponse.setOrderId(order.getId());
+        if (order == null) {
+            OrderResponse errorResponse = new OrderResponse();
+            errorResponse.setErrorMessage("Заказ с ID " + orderId + " не найден");
+            return errorResponse;
+        }
 
-        return orderResponse;
+        OrderResponse response = new OrderResponse();
+        response.setOrderId(order.getId());
+        response.setProductName(order.getProductName());
+        response.setQuantity(order.getQuantity());
+        response.setStatus(order.getStatus());
+
+        return response;
+
     }
 
     @Transactional
     @KafkaListener(topics = "order_status_updates",  groupId = "order-service-group-id")
     public void updateOrderStatus(OrderEvent orderEvent) {
 
-        Order order = orderRepository.findById(orderEvent.getOrderId())
-                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderEvent.getOrderId()));
+        Logger logger = LoggerFactory.getLogger(OrderService.class);
+        logger.info("Received order status update event: {}", orderEvent);
 
-        order.setStatus(orderEvent.getStatus());
+        try {
+            Order order = orderRepository.findById(orderEvent.getOrderId())
+                    .orElseThrow(() -> {
+                        String errorMessage = "Order not found: " + orderEvent.getOrderId();
+                        logger.error(errorMessage);
+                        return new IllegalArgumentException(errorMessage);
+                    });
 
+            logger.info("Order found: {}", order);
+            order.setStatus(orderEvent.getStatus());
+            logger.info("Order status updated to: {}", orderEvent.getStatus());
+
+        } catch (Exception e) {
+            logger.error("Failed to update order status for order ID: {}", orderEvent.getOrderId(), e);
+        }
     }
-
-
-
 }

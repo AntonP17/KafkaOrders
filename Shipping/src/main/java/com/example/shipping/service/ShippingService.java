@@ -51,8 +51,6 @@ public class ShippingService {
 
         event.setStatus(Status.SHIPPED);
 
-
-
         try {
             kafkaTemplate.send("sent_orders", event);
             kafkaTemplate.send("order_status_updates", event);
