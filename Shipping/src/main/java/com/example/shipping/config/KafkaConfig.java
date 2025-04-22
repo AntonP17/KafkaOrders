@@ -27,6 +27,8 @@ public class KafkaConfig {
     public NewTopic sentOrders() {
         return TopicBuilder
                 .name("sent_orders")
+                .partitions(1)
+                .replicas(3)
                 .build();
     }
 

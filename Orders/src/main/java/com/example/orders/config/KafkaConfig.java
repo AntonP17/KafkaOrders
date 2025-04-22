@@ -19,7 +19,7 @@ public class KafkaConfig {
     @Bean
     public KafkaAdmin admin() {
         Map<String, Object> configs = new HashMap<>();
-        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         return new KafkaAdmin(configs);
     }
 
@@ -28,6 +28,8 @@ public class KafkaConfig {
     public NewTopic orderTopic() {
         return TopicBuilder
                 .name("new_orders")
+                .partitions(1)
+                .replicas(3)
                 .build();
     }
 
@@ -35,6 +37,8 @@ public class KafkaConfig {
     public NewTopic orderStatusTopic() {
         return TopicBuilder
                 .name("order_status_updates")
+                .partitions(1)
+                .replicas(3)
                 .build();
     }
 }

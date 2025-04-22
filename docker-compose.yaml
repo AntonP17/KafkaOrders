@@ -21,7 +21,7 @@ services:
     networks:
       - kafka-net
 
-  microservice1:
+  orders:
     build: Orders
     ports:
       - "8080:8080"
@@ -38,7 +38,7 @@ services:
     networks:
       - kafka-net
 
-  microservice2:
+  payment:
     build: Payment
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ordersKafka
@@ -53,7 +53,7 @@ services:
     networks:
       - kafka-net
 
-  microservice3:
+  shipping:
     build: Shipping
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ordersKafka
@@ -68,7 +68,7 @@ services:
     networks:
       - kafka-net
 
-  microservice4:
+  notifications:
      build: Notifications
      environment:
        SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
