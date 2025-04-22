@@ -22,6 +22,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
+    private final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     @Autowired
     public OrderService(OrderRepository orderRepository, KafkaTemplate<String, OrderEvent> kafkaTemplate) {
@@ -32,7 +33,7 @@ public class OrderService {
     @Transactional
     public Order createOrder(OrderRequest orderRequest) {
 
-        Logger logger = LoggerFactory.getLogger(OrderService.class);
+//        Logger logger = LoggerFactory.getLogger(OrderService.class);
 
 
         Order order = new Order();
@@ -87,7 +88,7 @@ public class OrderService {
     @KafkaListener(topics = "order_status_updates",  groupId = "order-service-group-id")
     public void updateOrderStatus(OrderEvent orderEvent) {
 
-        Logger logger = LoggerFactory.getLogger(OrderService.class);
+
         logger.info("Received order status update event: {}", orderEvent);
 
         try {
@@ -101,7 +102,7 @@ public class OrderService {
             logger.info("Order found: {}", order);
             order.setStatus(orderEvent.getStatus());
             logger.info("Order status updated to: {}", orderEvent.getStatus());
-
+            orderRepository.save(order);
         } catch (Exception e) {
             logger.error("Failed to update order status for order ID: {}", orderEvent.getOrderId(), e);
         }
