@@ -2,7 +2,7 @@ package com.example.payment.dto;
 
 import com.example.payment.model.Status;
 
-public class OrderRequestToPay {
+public class OrderEvent {
 
    private Long orderId;
    private String productName;

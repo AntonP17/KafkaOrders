@@ -1,6 +1,6 @@
 package com.example.payment.service;
 
-import com.example.payment.dto.OrderRequestToPay;
+import com.example.payment.dto.OrderEvent;
 import com.example.payment.model.PayedOrder;
 import com.example.payment.model.Status;
 import com.example.payment.repository.PayedOrderRepository;
@@ -17,17 +17,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentService {
 
     private final PayedOrderRepository payedOrderRepository;
-    private final KafkaTemplate<String, OrderRequestToPay> kafkaTemplate;
+    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
 
     @Autowired
-    public PaymentService(PayedOrderRepository payedOrderRepository, KafkaTemplate<String, OrderRequestToPay> kafkaTemplate) {
+    public PaymentService(PayedOrderRepository payedOrderRepository, KafkaTemplate<String, OrderEvent> kafkaTemplate) {
         this.payedOrderRepository = payedOrderRepository;
         this.kafkaTemplate = kafkaTemplate;
     }
 
     @Transactional
     @KafkaListener(topics = "new_orders", groupId = "payment-service-group")
-    public void pay(OrderRequestToPay orderDTO) {
+    public void pay(OrderEvent orderDTO) {
 
         Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
